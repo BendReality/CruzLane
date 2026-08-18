@@ -218,10 +218,22 @@
   .section-head{ max-width:58ch; margin-bottom:48px; }
   .section-num{
     font-family:'JetBrains Mono', monospace;
-    font-size:0.78rem;
+    font-weight:500;
+    font-size:1rem;
+    letter-spacing:0.08em;
     color:var(--blue-bright);
-    margin-bottom:10px;
-    display:block;
+    text-transform:uppercase;
+    margin-bottom:16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .section-num::before{
+    content:"";
+    width:32px;
+    height:2px;
+    background:var(--blue);
+    box-shadow:0 0 10px 1px var(--blue-glow);
   }
   h2{
     font-family:'Space Grotesk', sans-serif;
@@ -294,6 +306,21 @@
   .status-callout strong{ display:block; margin-bottom:4px; font-family:'Space Grotesk', sans-serif; color:var(--white); }
 
   .path-list{ display:flex; flex-direction:column; border-top:1px solid var(--line-soft); }
+  .path-grid{
+    display:grid;
+    grid-template-columns:1.2fr 0.8fr;
+    gap:48px;
+    align-items:start;
+  }
+  .street-card{
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:var(--panel);
+    padding:20px;
+    position:sticky;
+    top:90px;
+  }
+  .street-card svg{ width:100%; height:auto; display:block; }
   .path-item{
     display:grid;
     grid-template-columns:120px 1fr;
@@ -350,6 +377,8 @@
     .problem-grid{ grid-template-columns:1fr; }
     .approach{ grid-template-columns:1fr; }
     .path-item{ grid-template-columns:1fr; gap:6px; }
+    .path-grid{ grid-template-columns:1fr; }
+    .street-card{ position:static; max-width:340px; margin:0 auto; }
     .cta-band .wrap{ grid-template-columns:1fr; }
     .map-card{ max-width:320px; }
   }
@@ -368,8 +397,8 @@
   <div class="wrap hero-grid">
     <div>
       <div class="eyebrow">Urban mobility · Global, starting in Madrid</div>
-      <h1>Finding parking shouldn't feel like <em>circling the block twice.</em></h1>
-      <p class="lead">Cruzlane is building the real-time, community-powered navigation layer that urban parking has never had — live availability, routed like Waze, purpose-built for the last five minutes of every drive.</p>
+      <h1>Stop circling the block. <em>Start parking in seconds.</em></h1>
+      <p class="lead">Cruzlane shows drivers where open parking spots are in real time, then routes them there turn-by-turn — combining live data with reports from other drivers on the road, so the last five minutes of every drive stop being a guessing game.</p>
       <div class="hero-actions">
         <a class="btn-primary" href="mailto:melanie@cruzlane.com">Get in touch</a>
         <a class="btn-ghost" href="#approach">How it works</a>
@@ -430,7 +459,7 @@
   <div class="wrap">
     <div class="section-head">
       <span class="section-num">01 — The problem</span>
-      <h2>Every city has the same broken minute.</h2>
+      <h2>Every city has the same parking problem. Let's fix it.</h2>
     </div>
     <div class="problem-grid">
       <div class="problem-card">
@@ -476,7 +505,7 @@
   <div class="wrap">
     <div class="section-head">
       <span class="section-num">02 — The approach</span>
-      <h2>We're not rebuilding the data. We're building what sits on top of it.</h2>
+      <h2>We use the parking data that already exists to power real-time navigation.</h2>
     </div>
     <div class="approach">
       <div class="approach-visual">
@@ -507,31 +536,91 @@
 
 <section id="path">
   <div class="wrap">
-    <div class="section-head">
-      <span class="section-num">03 — Where we're headed</span>
-      <h2>A global platform, built market by market — starting in Europe.</h2>
-    </div>
-    <div class="path-list">
-      <div class="path-item">
-        <span class="city-tag">PHASE 1</span>
-        <div><h4>Madrid &amp; major Spanish cities</h4><p>Home market. Where the product gets sharpened before it travels.</p></div>
+    <div class="path-grid">
+      <div>
+        <div class="section-head" style="margin-bottom:32px;">
+          <span class="section-num">03 — Where we're headed</span>
+          <h2>A global platform, built market by market — starting in Europe.</h2>
+        </div>
+        <div class="path-list">
+          <div class="path-item">
+            <span class="city-tag">PHASE 1</span>
+            <div><h4>Madrid &amp; major Spanish cities</h4><p>Home market. Where the product gets sharpened before it travels.</p></div>
+          </div>
+          <div class="path-item">
+            <span class="city-tag">PHASE 2</span>
+            <div><h4>Germany, UK, France</h4><p>Dense urban markets with mature parking-data infrastructure to license against.</p></div>
+          </div>
+          <div class="path-item">
+            <span class="city-tag">PHASE 3</span>
+            <div><h4>Broader Europe → US → APAC</h4><p>Following the density and data availability, not the other way around.</p></div>
+          </div>
+        </div>
       </div>
-      <div class="path-item">
-        <span class="city-tag">PHASE 2</span>
-        <div><h4>Germany, UK, France</h4><p>Dense urban markets with mature parking-data infrastructure to license against.</p></div>
-      </div>
-      <div class="path-item">
-        <span class="city-tag">PHASE 3</span>
-        <div><h4>Broader Europe → US → APAC</h4><p>Following the density and data availability, not the other way around.</p></div>
+
+      <div class="street-card" aria-hidden="true">
+        <svg viewBox="0 0 340 380" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="glow2" cx="50%" cy="30%" r="60%">
+              <stop offset="0%" stop-color="#0F72E8" stop-opacity="0.14"/>
+              <stop offset="100%" stop-color="#0F72E8" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="340" height="380" fill="url(#glow2)"/>
+          <!-- curb line -->
+          <line x1="20" y1="80" x2="320" y2="80" stroke="rgba(244,246,251,0.16)" stroke-width="2"/>
+          <line x1="20" y1="80" x2="20" y2="340" stroke="rgba(244,246,251,0.16)" stroke-width="2"/>
+          <!-- parking bay dividers -->
+          <g stroke="rgba(244,246,251,0.14)" stroke-width="1.5" stroke-dasharray="4 6">
+            <line x1="20" y1="130" x2="320" y2="130"/>
+            <line x1="20" y1="190" x2="320" y2="190"/>
+            <line x1="20" y1="250" x2="320" y2="250"/>
+            <line x1="20" y1="310" x2="320" y2="310"/>
+          </g>
+          <!-- cars, top-down, rounded rects -->
+          <g>
+            <rect x="40" y="95" width="120" height="26" rx="10" fill="#121A2C" stroke="#4B9BFF" stroke-width="1.5"/>
+            <rect x="55" y="100" width="90" height="16" rx="6" fill="rgba(75,155,255,0.18)"/>
+
+            <rect x="200" y="95" width="120" height="26" rx="10" fill="#121A2C" stroke="rgba(244,246,251,0.18)" stroke-width="1.5"/>
+            <rect x="215" y="100" width="90" height="16" rx="6" fill="rgba(244,246,251,0.06)"/>
+
+            <rect x="40" y="155" width="120" height="26" rx="10" fill="#121A2C" stroke="rgba(244,246,251,0.18)" stroke-width="1.5"/>
+            <rect x="55" y="160" width="90" height="16" rx="6" fill="rgba(244,246,251,0.06)"/>
+
+            <rect class="pulse-spot" x="200" y="155" width="120" height="26" rx="10" fill="#0F72E8" fill-opacity="0.16" stroke="#0F72E8" stroke-width="1.5" style="animation:pspot 2.6s ease-in-out infinite 0.4s;"/>
+
+            <rect x="40" y="215" width="120" height="26" rx="10" fill="#121A2C" stroke="rgba(244,246,251,0.18)" stroke-width="1.5"/>
+            <rect x="55" y="220" width="90" height="16" rx="6" fill="rgba(244,246,251,0.06)"/>
+
+            <rect class="pulse-spot" x="200" y="215" width="120" height="26" rx="10" fill="#0F72E8" fill-opacity="0.16" stroke="#0F72E8" stroke-width="1.5" style="animation:pspot 2.6s ease-in-out infinite 1.1s;"/>
+
+            <rect x="40" y="275" width="120" height="26" rx="10" fill="#121A2C" stroke="rgba(244,246,251,0.18)" stroke-width="1.5"/>
+            <rect x="55" y="280" width="90" height="16" rx="6" fill="rgba(244,246,251,0.06)"/>
+
+            <rect x="200" y="275" width="120" height="26" rx="10" fill="#121A2C" stroke="rgba(244,246,251,0.18)" stroke-width="1.5"/>
+            <rect x="215" y="280" width="90" height="16" rx="6" fill="rgba(244,246,251,0.06)"/>
+          </g>
+          <!-- small pin marker on the open blue spot -->
+          <g transform="translate(260,168)">
+            <path d="M0 0 C0 -12 -10 -12 -10 0 C-10 10 0 22 0 22 C0 22 10 10 10 0 C10 -12 0 -12 0 0 Z" fill="#4B9BFF"/>
+            <circle cx="0" cy="0" r="3.5" fill="#0B111F"/>
+          </g>
+        </svg>
+        <div class="map-legend" style="position:static; margin-top:12px; background:transparent; border:none; padding:0;">
+          <span><span class="legend-dot" style="background:#0F72E8;"></span>Open, live</span>
+          <span><span class="legend-dot" style="background:rgba(244,246,251,0.3);"></span>Occupied</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
+
 <div class="cta-band">
   <div class="wrap">
     <div>
-      <h2>We're raising, and we're selective about who we bring in early.</h2>
+      <h2>Be among the first to back the future of urban parking.</h2>
       <p>If you invest in urban mobility, or run parking infrastructure and want to see where this is headed, let's talk. Product details are shared under NDA.</p>
     </div>
     <div class="cta-band-right">
