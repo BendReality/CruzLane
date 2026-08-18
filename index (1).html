@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cruzlane — Real-time parking navigation</title>
+<meta name="description" content="Cruzlane is building the consumer navigation layer urban parking has been missing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12181F;
+    --paper:#F5F3EE;
+    --paper-dim:#EAE6DC;
+    --signal:#FFB020;
+    --route:#3E7C8C;
+    --scarce:#E2543D;
+    --line: rgba(18,24,31,0.12);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', -apple-system, sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit;}
+
+  .wrap{
+    max-width:1120px;
+    margin:0 auto;
+    padding:0 28px;
+  }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky;
+    top:0;
+    background:rgba(245,243,238,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    z-index:50;
+  }
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 0;
+  }
+  .logo{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:1.15rem;
+    letter-spacing:-0.01em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .logo-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--signal);
+    box-shadow:0 0 0 4px rgba(255,176,32,0.18);
+  }
+  .nav-cta{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.8rem;
+    padding:9px 16px;
+    border:1px solid var(--ink);
+    border-radius:2px;
+    text-decoration:none;
+    transition:background 0.15s ease, color 0.15s ease;
+  }
+  .nav-cta:hover{ background:var(--ink); color:var(--paper); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:96px 0 72px;
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:56px;
+    align-items:center;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    letter-spacing:0.06em;
+    color:var(--route);
+    text-transform:uppercase;
+    margin-bottom:18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px;height:1px;
+    background:var(--route);
+  }
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(2.4rem, 4.6vw, 3.6rem);
+    line-height:1.04;
+    letter-spacing:-0.02em;
+    margin-bottom:22px;
+  }
+  h1 em{
+    font-style:normal;
+    color:var(--route);
+  }
+  .hero p.lead{
+    font-size:1.08rem;
+    color:rgba(18,24,31,0.72);
+    max-width:46ch;
+    margin-bottom:32px;
+  }
+  .hero-actions{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .btn-primary{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    background:var(--ink);
+    color:var(--paper);
+    padding:14px 24px;
+    border-radius:2px;
+    text-decoration:none;
+    display:inline-block;
+    transition:transform 0.15s ease;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-ghost{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    padding:14px 24px;
+    border-radius:2px;
+    border:1px solid var(--line);
+    text-decoration:none;
+    display:inline-block;
+    transition:border-color 0.15s ease;
+  }
+  .btn-ghost:hover{ border-color:var(--ink); }
+
+  /* ---------- RADAR SIGNATURE ---------- */
+  .radar{
+    position:relative;
+    aspect-ratio:1;
+    max-width:400px;
+    margin:0 auto;
+    border-radius:50%;
+    background:
+      repeating-radial-gradient(circle, transparent 0, transparent 38px, var(--line) 39px, transparent 40px),
+      var(--paper-dim);
+    border:1px solid var(--line);
+  }
+  .radar::before{
+    content:"";
+    position:absolute; inset:0;
+    background: conic-gradient(from 0deg, rgba(62,124,140,0.28), transparent 28%);
+    border-radius:50%;
+    animation:sweep 4s linear infinite;
+  }
+  .spot{
+    position:absolute;
+    width:9px;height:9px;
+    border-radius:50%;
+    background:var(--signal);
+    box-shadow:0 0 0 5px rgba(255,176,32,0.16);
+    animation:pulse-in 2.6s ease-in-out infinite;
+  }
+  .spot.taken{ background:var(--scarce); box-shadow:0 0 0 5px rgba(226,84,61,0.16); }
+  .spot:nth-child(2){ top:28%; left:34%; animation-delay:0s; }
+  .spot:nth-child(3){ top:60%; left:66%; animation-delay:0.6s; }
+  .spot:nth-child(4){ top:70%; left:24%; animation-delay:1.2s; }
+  .spot:nth-child(5){ top:22%; left:70%; animation-delay:1.8s; }
+  .spot:nth-child(6){ top:46%; left:50%; animation-delay:2.4s; }
+
+  @keyframes sweep{ to{ transform:rotate(360deg); } }
+  @keyframes pulse-in{
+    0%, 100%{ opacity:0.35; transform:scale(0.85); }
+    50%{ opacity:1; transform:scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .radar::before{ animation:none; }
+    .spot{ animation:none; opacity:0.85; }
+  }
+
+  /* ---------- STATUS STRIP ---------- */
+  .status-strip{
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    padding:20px 0;
+  }
+  .status-strip .wrap{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.82rem;
+    color:rgba(18,24,31,0.68);
+  }
+  .status-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--signal);
+    flex-shrink:0;
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section{ padding:80px 0; }
+  .section-head{
+    max-width:56ch;
+    margin-bottom:44px;
+  }
+  .section-num{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    color:var(--route);
+    margin-bottom:10px;
+    display:block;
+  }
+  h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(1.6rem, 3vw, 2.1rem);
+    letter-spacing:-0.01em;
+  }
+
+  .problem-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .problem-card{
+    background:var(--paper);
+    padding:30px 26px;
+  }
+  .problem-card .num{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--scarce);
+    font-size:0.85rem;
+    display:block;
+    margin-bottom:14px;
+  }
+  .problem-card h3{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1.1rem;
+    margin-bottom:8px;
+  }
+  .problem-card p{
+    font-size:0.92rem;
+    color:rgba(18,24,31,0.66);
+  }
+
+  .approach{
+    display:grid;
+    grid-template-columns:0.85fr 1.15fr;
+    gap:56px;
+    align-items:start;
+  }
+  .approach-visual{
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:26px;
+    background:var(--paper-dim);
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.82rem;
+    line-height:1.9;
+  }
+  .approach-visual .layer{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .approach-visual .layer:last-child{ border-bottom:none; }
+  .approach-visual .layer .tag{
+    color:var(--route);
+  }
+  .approach-visual .layer.us{
+    color:var(--ink);
+    font-weight:600;
+  }
+  .approach-visual .layer.us .tag{ color:var(--signal); }
+
+  .approach p{
+    color:rgba(18,24,31,0.72);
+    margin-bottom:16px;
+    max-width:56ch;
+  }
+  .approach p:last-child{ margin-bottom:0; }
+
+  .status-callout{
+    margin-top:28px;
+    border-left:2px solid var(--signal);
+    padding:14px 20px;
+    background:var(--paper-dim);
+    font-size:0.92rem;
+    color:rgba(18,24,31,0.78);
+  }
+  .status-callout strong{ display:block; margin-bottom:4px; font-family:'Space Grotesk', sans-serif; }
+
+  .path-list{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    border-top:1px solid var(--line);
+  }
+  .path-item{
+    display:grid;
+    grid-template-columns:120px 1fr;
+    gap:24px;
+    padding:22px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .path-item .city-tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.82rem;
+    color:var(--route);
+  }
+  .path-item h4{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1rem;
+    margin-bottom:4px;
+  }
+  .path-item p{
+    font-size:0.9rem;
+    color:rgba(18,24,31,0.62);
+  }
+
+  .cta-band{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .cta-band .wrap{
+    padding:72px 28px;
+    display:grid;
+    grid-template-columns:1.2fr 0.8fr;
+    gap:40px;
+    align-items:center;
+  }
+  .cta-band h2{
+    color:var(--paper);
+  }
+  .cta-band p{
+    color:rgba(245,243,238,0.68);
+    margin-top:14px;
+    max-width:44ch;
+  }
+  .cta-band .btn-primary{
+    background:var(--signal);
+    color:var(--ink);
+  }
+  .cta-band-right{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .cta-band-right a{
+    text-decoration:none;
+  }
+  .contact-line{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.85rem;
+    color:rgba(245,243,238,0.6);
+  }
+
+  footer{
+    padding:36px 0;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    color:rgba(18,24,31,0.5);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  @media (max-width: 860px){
+    .hero{ grid-template-columns:1fr; padding-top:56px; }
+    .problem-grid{ grid-template-columns:1fr; }
+    .approach{ grid-template-columns:1fr; }
+    .path-item{ grid-template-columns:1fr; gap:6px; }
+    .cta-band .wrap{ grid-template-columns:1fr; }
+    .radar{ max-width:280px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo"><span class="logo-dot"></span>Cruzlane</div>
+    <a class="nav-cta" href="mailto:melanie@cruzlane.com">Request early access</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap" style="display:contents;">
+    <div>
+      <div class="eyebrow">Urban mobility · Madrid</div>
+      <h1>Finding parking shouldn't feel like <em>circling the block twice.</em></h1>
+      <p class="lead">Cruzlane is building the real-time, community-powered navigation layer that urban parking has never had — live availability, routed like Waze, purpose-built for the last five minutes of every drive.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="mailto:melanie@cruzlane.com">Get in touch</a>
+        <a class="btn-ghost" href="#approach">How it works</a>
+      </div>
+    </div>
+    <div class="radar" aria-hidden="true">
+      <div class="spot"></div>
+      <div class="spot taken"></div>
+      <div class="spot"></div>
+      <div class="spot"></div>
+      <div class="spot taken"></div>
+    </div>
+  </div>
+</section>
+
+<div class="status-strip">
+  <div class="wrap">
+    <span class="status-dot"></span>
+    Early-stage — working prototype in active development. Not yet publicly available.
+  </div>
+</div>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-num">01 — The problem</span>
+      <h2>Every city has the same broken minute.</h2>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <span class="num">↳</span>
+        <h3>No live signal</h3>
+        <p>Drivers navigate to an address, then are on their own for the part that actually costs them time.</p>
+      </div>
+      <div class="problem-card">
+        <span class="num">↳</span>
+        <h3>Fragmented data</h3>
+        <p>Availability data exists across operators and cities, but nothing stitches it into one navigable layer.</p>
+      </div>
+      <div class="problem-card">
+        <span class="num">↳</span>
+        <h3>No community loop</h3>
+        <p>Traffic apps solved this for roads by turning drivers into sensors. Parking never got the same treatment.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="approach">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-num">02 — The approach</span>
+      <h2>We're not rebuilding the data. We're building what sits on top of it.</h2>
+    </div>
+    <div class="approach">
+      <div class="approach-visual">
+        <div class="layer">
+          <span>Parking data infrastructure</span>
+          <span class="tag">licensed</span>
+        </div>
+        <div class="layer us">
+          <span>Cruzlane navigation layer</span>
+          <span class="tag">in development</span>
+        </div>
+        <div class="layer">
+          <span>Driver, in real time</span>
+          <span class="tag">community input</span>
+        </div>
+      </div>
+      <div>
+        <p>The infrastructure to know where a spot might be already exists across dozens of providers and cities. What's missing is the consumer experience — a single, trustworthy, routed layer that feels as effortless as any modern navigation app.</p>
+        <p>Cruzlane licenses existing availability data and combines it with community-reported spots and predictive modeling, then routes drivers to a parking outcome the way a modern navigation app routes them to a destination.</p>
+        <div class="status-callout">
+          <strong>Where we are today</strong>
+          A working prototype exists and is in active internal testing. We haven't opened a public pilot yet — we're being deliberate about the markets and users we bring in first.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="path">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-num">03 — Where we're headed</span>
+      <h2>Madrid first. Then everywhere driving is a daily frustration.</h2>
+    </div>
+    <div class="path-list">
+      <div class="path-item">
+        <span class="city-tag">PHASE 1</span>
+        <div><h4>Madrid &amp; major Spanish cities</h4><p>Home market. Where the product gets sharpened before it travels.</p></div>
+      </div>
+      <div class="path-item">
+        <span class="city-tag">PHASE 2</span>
+        <div><h4>Germany, UK, France</h4><p>Dense urban markets with mature parking-data infrastructure to license against.</p></div>
+      </div>
+      <div class="path-item">
+        <span class="city-tag">PHASE 3</span>
+        <div><h4>Broader Europe → US → APAC</h4><p>Following the density and data availability, not the other way around.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band">
+  <div class="wrap">
+    <div>
+      <h2>We're raising, and we're selective about who we bring in early.</h2>
+      <p>If you invest in urban mobility, or run parking infrastructure and want to see where this is headed, let's talk. Product details are shared under NDA.</p>
+    </div>
+    <div class="cta-band-right">
+      <a class="btn-primary" href="mailto:melanie@cruzlane.com">melanie@cruzlane.com</a>
+      <span class="contact-line">Melanie R. Aigner Smith · Founder &amp; CEO</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; width:100%; flex-wrap:wrap; gap:10px;">
+    <span>© 2026 Cruzlane</span>
+    <span>Madrid, Spain</span>
+  </div>
+</footer>
+
+</body>
+</html>
